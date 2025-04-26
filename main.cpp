@@ -38,10 +38,18 @@ int main(){
 			}
 			case SDL_EVENT_JOYSTICK_REMOVED:
 			{
-				for(auto joystick = joysticks.begin();joystick != joysticks.end();joystick++){
+				auto joystick = joysticks.begin();
+				while(true){
+					if (joystick == joysticks.end()){
+						break;
+					}
 					if(!SDL_JoystickConnected(*joystick)){
-						printf("joystick %d %04x:%04x removed", SDL_GetJoystickID(*joystick), SDL_GetJoystickVendor(*joystick), SDL_GetJoystickProduct(*joystick));
+						printf("joystick %d %04x:%04x removed\n", SDL_GetJoystickID(*joystick), SDL_GetJoystickVendor(*joystick), SDL_GetJoystickProduct(*joystick));
 						SDL_CloseJoystick(*joystick);
+						joysticks.erase(joystick);
+						joystick = joysticks.begin();
+					}else{
+						joystick++;
 					}
 				}
 			}
@@ -50,7 +58,9 @@ int main(){
 				SDL_JoyButtonEvent *e = (SDL_JoyButtonEvent *)&event;
 				uint16_t vendor = SDL_GetJoystickVendorForID(e->which);
 				uint16_t product = SDL_GetJoystickProductForID(e->which);
-				printf("%04x:%04x button %u %s\n", vendor, product, e->button, e->down ? "down" : "up");
+				if (vendor != 0){
+					printf("%04x:%04x button %u %s\n", vendor, product, e->button, e->down ? "down" : "up");
+				}
 				break;
 			}
 			case SDL_EVENT_JOYSTICK_HAT_MOTION:{
