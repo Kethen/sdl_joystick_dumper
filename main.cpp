@@ -84,7 +84,7 @@ int main(){
 					bool led = SDL_GetBooleanProperty(prop_id, SDL_PROP_JOYSTICK_CAP_MONO_LED_BOOLEAN, false);
 					bool color_led = SDL_GetBooleanProperty(prop_id, SDL_PROP_JOYSTICK_CAP_RGB_LED_BOOLEAN, false);
 					joysticks[e->which] = handle;
-					LOG("joystick %u %p %04x:%04x added, buttons: %d, hats: %d, axis: %d, led: %s, color led: %s\n", e->which, handle, SDL_GetJoystickVendor(handle), SDL_GetJoystickProduct(handle), SDL_GetNumJoystickButtons(handle), SDL_GetNumJoystickHats(handle), SDL_GetNumJoystickAxes(handle), led ? "true" : "false", color_led ? "true" : "false");
+					LOG("joystick %u %p %04x:%04x added, version %u, firmware version %u, buttons: %d, hats: %d, axis: %d, led: %s, color led: %s\n", e->which, handle, SDL_GetJoystickVendor(handle), SDL_GetJoystickProduct(handle), SDL_GetJoystickProductVersion(handle), SDL_GetJoystickFirmwareVersion(handle), SDL_GetNumJoystickButtons(handle), SDL_GetNumJoystickHats(handle), SDL_GetNumJoystickAxes(handle), led ? "true" : "false", color_led ? "true" : "false");
 
 					SDL_Haptic *haptic_handle = SDL_OpenHapticFromJoystick(handle);
 					if(haptic_handle != NULL){
