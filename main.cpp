@@ -148,7 +148,7 @@ int main(){
 				uint16_t vendor = SDL_GetJoystickVendorForID(e->which);
 				uint16_t product = SDL_GetJoystickProductForID(e->which);
 				if (vendor != 0){
-					LOG("%04x:%04x button %u %s\n", vendor, product, e->button, e->down ? "down" : "up");
+					LOG("%u %04x:%04x button %u %s\n", e->which, vendor, product, e->button, e->down ? "down" : "up");
 				}
 				break;
 			}
@@ -156,14 +156,14 @@ int main(){
 				SDL_JoyHatEvent *e = (SDL_JoyHatEvent *)&event;
 				uint16_t vendor = SDL_GetJoystickVendorForID(e->which);
 				uint16_t product = SDL_GetJoystickProductForID(e->which);
-				LOG("%04x:%04x hat %u %u\n", vendor, product, e->hat, e->value);
+				LOG("%u %04x:%04x hat %u %u\n", e->which, vendor, product, e->hat, e->value);
 				break;
 			}
 			case SDL_EVENT_JOYSTICK_AXIS_MOTION:{
 				SDL_JoyAxisEvent *e = (SDL_JoyAxisEvent *)&event;
 				uint16_t vendor = SDL_GetJoystickVendorForID(e->which);
 				uint16_t product = SDL_GetJoystickProductForID(e->which);
-				LOG("%04x:%04x axis %u %d\n", vendor, product, e->axis, e->value);
+				LOG("%u %04x:%04x axis %u %d\n", e->which, vendor, product, e->axis, e->value);
 				break;
 			}
 		}
