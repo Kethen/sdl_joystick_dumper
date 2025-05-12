@@ -10,10 +10,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install build deps
+    - name: Fetch submodules
+      run: |
+        git submodule update --init --recursive
+
+    - name: Install podman
       run: |
         sudo apt update
-        sudo apt install -y libsdl3-dev libsdl3-0 g++ g++-mingw-w64
+        sudo apt install -y podman
 
     - name: Set env vars
       run: |
@@ -21,8 +25,7 @@ jobs:
 
     - name: Build
       run: |
-        bash build.sh
-        bash build_windows.sh
+        bash build_podman.sh
         cp sdl3_prebuilt/SDL3.dll ./
 
     - name: Push package artifact
