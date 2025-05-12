@@ -132,14 +132,16 @@ int main(){
 				auto joystick_entry = joysticks.find(e->which);
 				if(joystick_entry != joysticks.end()){
 					SDL_Joystick *joystick = joystick_entry->second;
-					LOG("joystick %d %04x:%04x removed\n", SDL_GetJoystickID(joystick), SDL_GetJoystickVendor(joystick), SDL_GetJoystickProduct(joystick));
+					LOG("joystick %d %04x:%04x removed\n", e->which, SDL_GetJoystickVendor(joystick), SDL_GetJoystickProduct(joystick));
 					auto haptic_entry = haptic_devices.find(joystick);
 					if(haptic_entry != haptic_devices.end()){
 						SDL_CloseHaptic(haptic_entry->second);
+						haptic_devices.erase(joystick);
 					}
 					SDL_CloseJoystick(joystick);
+					joysticks.erase(e->which);
 				}
-				SDL_Joystick *joystick = joysticks[e->which];
+
 				break;
 			}
 			case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
