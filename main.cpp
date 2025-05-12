@@ -2,13 +2,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#ifdef __linux__
-#include <signal.h>
-#endif
-
 #include <SDL3/SDL.h>
 
+#ifdef __linux__
+#include <signal.h>
+#else
+#include <windows.h>
+#define sleep(s) Sleep(s * 1000)
+#endif
+
 #include <map>
+#include <thread>
 
 #ifdef __linux__
 void sig_int(int signo){
@@ -17,14 +21,30 @@ void sig_int(int signo){
 #endif
 
 FILE *log_file = NULL;
+#ifdef __linux__
+#define LOG_FILE_NAME "sdl_joystick_dumper_linux.txt"
+#else
+#define LOG_FILE_NAME "sdl_joystick_dumper_windows.txt"
+#endif
+
 #define LOG(...){ \
 	printf(__VA_ARGS__); \
 	if(log_file == NULL) \
-		log_file = fopen("sdl_joystick_dumper.txt", "w"); \
+		log_file = fopen(LOG_FILE_NAME, "w"); \
 	if(log_file != NULL){ \
 		fprintf(log_file, __VA_ARGS__); \
 		fflush(log_file); \
 	} \
+}
+
+int SDLCALL autocenter_disable_tick(void *){
+	while(true){
+		SDL_Event user_event = {0};
+		user_event.type = SDL_EVENT_USER;
+		user_event.user.code = 1;
+		SDL_PushEvent(&user_event);
+		sleep(1);
+	}
 }
 
 int main(){
@@ -38,11 +58,24 @@ int main(){
 	sigaction(SIGINT, &act, NULL);
 	#endif
 
+	SDL_Thread *autocenter_disable_tick_thread = SDL_CreateThread(autocenter_disable_tick, "autocenter disabling timer", NULL);
+	if(autocenter_disable_tick_thread == NULL){
+		LOG("failed creating auto center disabling tick, %s\n", SDL_GetError());
+		exit(1);
+	}
+
 	while(true){
 		SDL_Event event;
 		SDL_WaitEvent(&event);
 		switch(event.type)
 		{
+			case SDL_EVENT_USER:{
+				for(auto haptic_device : haptic_devices){
+					if(!SDL_SetHapticAutocenter(haptic_device.second, 0)){
+						//LOG("failed disabling autocenter, %s\n", SDL_GetError());
+					}
+				}
+			}
 			case SDL_EVENT_JOYSTICK_ADDED:{
 				SDL_JoyDeviceEvent *e = (SDL_JoyDeviceEvent *)&event;
 				SDL_Joystick *handle = SDL_OpenJoystick(e->which);
@@ -86,6 +119,8 @@ int main(){
 						if(SDL_HapticRumbleSupported(haptic_handle)){
 							feature_buf_offset += sprintf(&feature_buf[feature_buf_offset], "%s ", "rumble");
 						}
+
+						SDL_SetHapticAutocenter(haptic_handle, 0);
 
 						LOG("haptic device %p added from %p, max num effects: %d, max num effects playing: %d, features: %s\n", haptic_handle, handle, max_num_effects, max_num_effects_playing, feature_buf);
 					}

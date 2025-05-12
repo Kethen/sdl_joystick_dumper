@@ -1,1 +1,1 @@
-g++ -o sdl_joystick_dumper main.cpp -lSDL3
+g++ -g -o sdl_joystick_dumper main.cpp -lSDL3
